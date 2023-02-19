@@ -1,0 +1,235 @@
+def read_file(path):
+    f = open(path)
+    lines = []
+
+    for line in f:
+        lines.append(line.rstrip().split(","))
+
+    lines.pop(0)
+
+    return lines
+
+
+def sickness_per_sex(lines):
+    men = 0
+    women = 0
+    mSick = 0
+    wSick = 0
+    result = []
+    menL = []
+    womenL = []
+
+    for line in lines:
+        if line[1] == 'F':
+            women +=1
+            if line[5] == '1':
+                wSick += 1
+        else:
+            men += 1
+            if line[5] == '1':
+                mSick += 1
+    
+    menL.append(mSick)
+    menL.append(men)
+    womenL.append(wSick)
+    womenL.append(women)
+
+    result.append(menL)
+    result.append(womenL)
+
+    return result
+
+
+def max_age_max_min_cholesterol(lines):
+    maxA = 0
+    maxC = 0
+    minC = 999
+    result = []
+
+    for line in lines:
+        value = int(line[0])
+        if value > maxA:
+            maxA = value
+        
+        col = int(line[3])
+        if col > maxC:
+            maxC = col 
+        elif col < minC:
+            if col != 0:
+                minC = col
+        
+    
+    result.append(maxA)
+    result.append(maxC)
+    result.append(minC)
+
+    return result
+
+
+def escaloes(maxAge, maxChol, minChol):
+    minA = 30
+    excx = []
+
+    excA = dict()
+    excC = dict()
+    excAN = dict()
+    excCN = dict()
+
+    while minA <= maxAge:
+        excA[minA] = 0
+        excAN[minA] = 0
+        minA += 5
+
+    excC[0] = 0
+    excCN[0] = 0
+    while minChol <= maxChol:
+        excC[minChol] = 0
+        excCN[minChol] = 0
+        minChol += 10
+    
+    excx.append(excA)
+    excx.append(excAN)
+    excx.append(excC)
+    excx.append(excCN)
+
+    return excx
+
+
+def insert_escaloes_age(excA, excAN, age, flag):
+    if flag == 0:
+        for key in excA:
+            if age >= key and age <= (key + 4):
+                excA[key] += 1
+                excAN[key] += 1
+                break
+    
+    else:
+        for key in excAN:
+            if age >= key and age <= (key + 4):
+                excAN[key] += 1
+                break
+
+
+def sickness_per_age(lines):
+    values = max_age_max_min_cholesterol(lines)
+    excA = escaloes(values[0],values[1],values[2])[0]
+    excAN = escaloes(values[0],values[1],values[2])[1]
+    result = []
+
+    for line in lines:
+        if line[5] == '1':
+            insert_escaloes_age(excA,excAN,int(line[0]),0)
+
+        else:
+            insert_escaloes_age(excA,excAN,int(line[0]),1)
+    
+    result.append(excA)
+    result.append(excAN)
+    return result
+
+
+def insert_escaloes_cholesterol(excC,excCN,chol,flag):
+    if flag == 0:
+        for key in excC:
+            if chol >= key and chol <= (key + 9):
+                excC[key] += 1
+                excCN[key] += 1
+                break
+    
+    else:
+        for key in excCN:
+            if chol >= key and chol <= (key + 9):
+                excCN[key] += 1
+                break
+
+
+def sickness_per_cholesterol(lines):
+    values = max_age_max_min_cholesterol(lines)
+    excC = escaloes(values[0],values[1],values[2])[2]
+    excCN = escaloes(values[0],values[1],values[2])[3]
+    result = []
+
+    for line in lines:
+        if line[5] == '1':
+            insert_escaloes_cholesterol(excC,excCN,int(line[3]),0)
+        else:
+            insert_escaloes_cholesterol(excC,excCN,int(line[3]),1)
+    
+    result.append(excC)
+    result.append(excCN)
+    return result
+
+
+def print_sex(list):
+    print(f'Há {list[0][0]} homens doentes num total de {list[0][1]}!')
+    print(f'Há {list[1][0]} mulheres doentes num total de {list[1][1]}')
+
+
+def print_age(result):
+    for key in result[0]:
+        print(f'Idade: {key}-{key + 4} -> Número de doentes: {result[0][key]}')
+
+
+def print_cholesterol(result):
+    for key in result[0]:
+        print(f'Colesterol: {key}-{key + 9} -> Número de doentes: {result[0][key]}')
+
+
+def print_table_sex(list):
+    print('|----------------------------------------|')
+    print('|     Distribuição da doença por sexo    |')
+    print('|----------------------------------------|')
+    print('|     Sexo     |   Doentes   |   Total   |')
+    print('|----------------------------------------|')
+
+    for index in range(0,2):
+        if index == 0: 
+            print('|       M      |  {:^9}  | {:^9} |'.format(*list[index]))
+        else:
+            print('|       F      |  {:^9}  | {:^9} |'.format(*list[index]))
+        print('|----------------------------------------|')
+
+
+def print_table_age(result):
+    print('|----------------------------------------|')
+    print('|    Distribuição da doença por idade    |')
+    print('|----------------------------------------|')
+    print('|     Idade    |   Doentes   |   Total   |')
+    print('|----------------------------------------|')
+
+    for key in result[0]:
+        print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+        print('|----------------------------------------|')
+
+
+def print_table_cholesterol(result):
+    print('|----------------------------------------|')
+    print('|  Distribuição da doença por colesterol |')
+    print('|----------------------------------------|')
+    print('|  Colesterol  |   Doentes   |   Total   |')
+    print('|----------------------------------------|')
+
+    for key in result[0]:
+        if key == 0:
+            print("|     [ND]     |  {:^9}  | {:^9} |".format(result[0][key],result[1][key]))
+        
+        elif key < 100:
+            print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+
+        else:
+            print("|    {}-{}   |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+        
+        print('|----------------------------------------|')
+
+def main():
+    lines = read_file("myheart.csv")
+    result1 = sickness_per_sex(lines)
+    print_table_sex(result1)
+    result2 = sickness_per_age(lines)
+    print_table_age(result2)
+    result3 = sickness_per_cholesterol(lines)
+    print_table_cholesterol(result3)
+
+
+if __name__ == "__main__":
+    main()
