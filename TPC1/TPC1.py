@@ -190,7 +190,7 @@ def print_table_cholesterol(excC):
 
     for key in excC:
         if key == 0:
-            print("|     [ND]     |  {:^9}  | {:^9} |".format(excC[key][0],excC[key][1]))
+            print("|    [ND]/0    |  {:^9}  | {:^9} |".format(excC[key][0],excC[key][1]))
         
         elif key < 100:
             print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,excC[key][0],excC[key][1]))
