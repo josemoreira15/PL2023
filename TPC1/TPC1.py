@@ -72,92 +72,71 @@ def escaloes(maxAge, maxChol, minChol):
 
     excA = dict()
     excC = dict()
-    excAN = dict()
-    excCN = dict()
 
     while minA <= maxAge:
-        excA[minA] = 0
-        excAN[minA] = 0
+        excA[minA] = [0,0]
         minA += 5
 
-    excC[0] = 0
-    excCN[0] = 0
+    excC[0] = [0,0]
     while minChol <= maxChol:
-        excC[minChol] = 0
-        excCN[minChol] = 0
+        excC[minChol] = [0,0]
         minChol += 10
     
     excx.append(excA)
-    excx.append(excAN)
     excx.append(excC)
-    excx.append(excCN)
 
     return excx
 
 
-def insert_escaloes_age(excA, excAN, age, flag):
+def insert_escaloes_age(excA, age, flag):
     if flag == 0:
         for key in excA:
             if age >= key and age <= (key + 4):
-                excA[key] += 1
-                excAN[key] += 1
+                excA[key][0] += 1
+                excA[key][1] += 1
                 break
     
     else:
-        for key in excAN:
+        for key in excA:
             if age >= key and age <= (key + 4):
-                excAN[key] += 1
+                excA[key][1] += 1
                 break
 
 
-def sickness_per_age(lines):
-    values = max_age_max_min_cholesterol(lines)
-    excA = escaloes(values[0],values[1],values[2])[0]
-    excAN = escaloes(values[0],values[1],values[2])[1]
-    result = []
-
+def sickness_per_age(lines, excA):
     for line in lines:
         if line[5] == '1':
-            insert_escaloes_age(excA,excAN,int(line[0]),0)
+            insert_escaloes_age(excA,int(line[0]),0)
 
         else:
-            insert_escaloes_age(excA,excAN,int(line[0]),1)
+            insert_escaloes_age(excA,int(line[0]),1)
     
-    result.append(excA)
-    result.append(excAN)
-    return result
+    return excA
 
 
-def insert_escaloes_cholesterol(excC,excCN,chol,flag):
+def insert_escaloes_cholesterol(excC,chol,flag):
     if flag == 0:
         for key in excC:
             if chol >= key and chol <= (key + 9):
-                excC[key] += 1
-                excCN[key] += 1
+                excC[key][0] += 1
+                excC[key][1] += 1
                 break
     
     else:
-        for key in excCN:
+        for key in excC:
             if chol >= key and chol <= (key + 9):
-                excCN[key] += 1
+                excC[key][1] += 1
                 break
 
 
-def sickness_per_cholesterol(lines):
-    values = max_age_max_min_cholesterol(lines)
-    excC = escaloes(values[0],values[1],values[2])[2]
-    excCN = escaloes(values[0],values[1],values[2])[3]
-    result = []
-
+def sickness_per_cholesterol(lines, excC):
     for line in lines:
         if line[5] == '1':
-            insert_escaloes_cholesterol(excC,excCN,int(line[3]),0)
+            insert_escaloes_cholesterol(excC,int(line[3]),0)
         else:
-            insert_escaloes_cholesterol(excC,excCN,int(line[3]),1)
+            insert_escaloes_cholesterol(excC,int(line[3]),1)
     
-    result.append(excC)
-    result.append(excCN)
-    return result
+    return excC
 
 
 def print_sex(list):
@@ -190,44 +169,47 @@ def print_table_sex(list):
         print('|----------------------------------------|')
 
 
-def print_table_age(result):
+def print_table_age(excA):
     print('|----------------------------------------|')
     print('|    Distribuição da doença por idade    |')
     print('|----------------------------------------|')
     print('|     Idade    |   Doentes   |   Total   |')
     print('|----------------------------------------|')
 
-    for key in result[0]:
-        print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+    for key in excA:
+        print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,excA[key][0],excA[key][1]))
         print('|----------------------------------------|')
 
 
-def print_table_cholesterol(result):
+def print_table_cholesterol(excC):
     print('|----------------------------------------|')
     print('|  Distribuição da doença por colesterol |')
     print('|----------------------------------------|')
     print('|  Colesterol  |   Doentes   |   Total   |')
     print('|----------------------------------------|')
 
-    for key in result[0]:
+    for key in excC:
         if key == 0:
-            print("|     [ND]     |  {:^9}  | {:^9} |".format(result[0][key],result[1][key]))
+            print("|     [ND]     |  {:^9}  | {:^9} |".format(excC[key][0],excC[key][1]))
         
         elif key < 100:
-            print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+            print("|     {}-{}    |  {:^9}  | {:^9} |".format(key,key+4,excC[key][0],excC[key][1]))
 
         else:
-            print("|    {}-{}   |  {:^9}  | {:^9} |".format(key,key+4,result[0][key],result[1][key]))
+            print("|    {}-{}   |  {:^9}  | {:^9} |".format(key,key+4,excC[key][0],excC[key][1]))
         
         print('|----------------------------------------|')
 
 def main():
     lines = read_file("myheart.csv")
+    values = max_age_max_min_cholesterol(lines)
+    excx = escaloes(values[0],values[1],values[2])
+
     result1 = sickness_per_sex(lines)
     print_table_sex(result1)
-    result2 = sickness_per_age(lines)
+    result2 = sickness_per_age(lines, excx[0])
     print_table_age(result2)
-    result3 = sickness_per_cholesterol(lines)
+    result3 = sickness_per_cholesterol(lines, excx[1])
     print_table_cholesterol(result3)
 
 
