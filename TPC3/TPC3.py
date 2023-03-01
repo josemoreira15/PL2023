@@ -40,7 +40,6 @@ def find_sec(year):
         return int(year[:2])
     return (int(year[:2]) + 1)
 
-  
 def most_common_names(ds):
     res = []
     np = {}
@@ -87,13 +86,14 @@ def most_common_names(ds):
 def relation_freq(ds):
     res = {}
     for dic in ds:
-        rels = re.findall(r',([A-Z][a-zA-Z]*\s*[a-zA-Z]*?)\. Proc',dic.get('content'))
+        rels = re.findall(r'[a-z],([A-Z][a-zA-Z]*\s*[a-zA-Z]*?)\.\s[a-zA-Z]',dic.get('content'))
         for rel in rels:
             if rel not in res:
                 res[rel] = 0
             res[rel] += 1
 
-    return res
+    sorted_res = {k : res[k] for k in sorted(res, key = res.get)}
+    return sorted_res
 
 
 def create_json(ds):
