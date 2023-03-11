@@ -82,9 +82,9 @@ def json_convert(json_path,main_dicts):
 
 
 def main():
-    lines = read_file('csv/alunos5.csv')
+    lines = read_file('csv/alunos.csv')
     dicts = lines_to_dicts(lines)
-    json_convert('json/alunos5.json',dicts)
+    json_convert('json/alunos.json',dicts)
 
 if __name__ == "__main__":
     main()
