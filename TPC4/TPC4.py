@@ -53,8 +53,8 @@ def lines_to_dicts(lines):
 
                     dict[key] = value
                     
-
-                else: #normal
+                    
+                else: 
                     dict[main_line[i]] = line[i]
 
         main_dicts.append(dict)
