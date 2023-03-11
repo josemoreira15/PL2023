@@ -5,7 +5,7 @@ def read_file(csv_path):
 
     file = open(csv_path, "r")
     for line in file:
-        lines.append(line.rstrip().split(',', 3))
+        lines.append(line.rstrip().split(','))
 
     file.close()
     return lines 
@@ -14,31 +14,49 @@ def read_file(csv_path):
 def lines_to_dicts(lines):
     main_dicts = []
     main_line = lines.pop(0)
+
+    counter = 0
+    while(counter < len(main_line)):
+        if '}' in main_line[counter] and main_line[counter-1][-1].isdigit():
+            main_line[counter-1] += ',' + main_line[counter]
+            main_line.pop(counter)
+        counter += 1
     
     for line in lines:
         dict = {}
         for i in range(0,len(main_line)):
-            if i < 3:
-                dict[main_line[i]] = line[i]
-            else:
-                if re.search(r'{\d}',main_line[3]):
-                    dict[main_line[i][:5]] = line[3].split(',')
+            if main_line[i] != '':
+                list_type = re.search(r'(\w+){(\d+),*(\d*)}', main_line[i])
+                
+                if list_type:
+                    key = list_type.group(1)
+                    max = int(list_type.group(2))
+                    if list_type.group(3):
+                        max = int(list_type.group(3))
+                    aux = []
+                    for index in range(i,i+max):
+                        if line[index] != '':
+                            aux.append(line[index])
+                        else:
+                            break
+                    value = aux
 
-                elif re.search(r'{\d,\d},',main_line[3]):    
-                    dict[main_line[i][:5]] = list(filter(None, line[3].split(',')))
+                    function_type = re.search(r'(\w+){(\d+),*(\d*)}::(\w+)', main_line[i])
+                    if function_type:
+                        function = function_type.group(3)
+                        if function_type.group(4):
+                            function = function_type.group(4)
+                        key = list_type.group(1) + "_" + function
+                        value = sum(map(int,aux))
+                        if (function == 'media'):
+                            value = float(sum(map(int,aux))) / float(len(aux))
 
-                elif re.search(r'{\d,\d}::',main_line[3]): 
-                    operation = main_line[i][12:].split(",")[0]
-                    key = main_line[i][:5] + "_" + operation
-                    if operation == 'sum':
-                        dict[key] = sum(map(int,list(filter(None, line[3].split(',')))))
-                    elif operation == 'media':
-                        i_list = list(filter(None, line[3].split(',')))
-                        dict[key] = sum(map(int,i_list))/len(i_list)
-                    else:
-                        print('Operação não suportada!')
-                else:
-                    break
+                    dict[key] = value
+                    
+
+                else: #normal
+                    dict[main_line[i]] = line[i]
+
         main_dicts.append(dict)
     
     return main_dicts
