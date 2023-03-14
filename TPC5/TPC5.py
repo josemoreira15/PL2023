@@ -1,14 +1,10 @@
 import re
 
 def value_to_str(balance):
-    b_str = str(balance)
-    sep = b_str.split('.')
-    result = sep[0] + 'e' + sep[1]
-    if (len(sep[1]) == 1):
-        result += '0'
-    result += 'c'
+    result = str(balance//100) + 'e' + str(balance % 100) + 'c'
 
     return result
+
 
 def value(money, balance):
     qt = 0
@@ -16,9 +12,9 @@ def value(money, balance):
     for coin in coins:
         if re.match(r"[125]0?c",coin) or re.match(r"[12]e",coin):
             if coin[-1] == 'c':
-                qt += float(coin[:-1]) / 100
+                qt += int(coin[:-1])
             else:
-                qt += float(coin[:-1])
+                qt += int(coin[:-1])*100
         else:
             print(f'maq: "Moeda inválida: {coin}"')
     
@@ -33,30 +29,31 @@ def phone_call(number, balance):
     
     else:
         if re.match(r"00",number):
-            if (balance - 1.5 >= 0):
-                balance -= 1.5
+            if (balance - 150 >= 0):
+                balance -= 150
             else:
                 print('maq: "Saldo insuficiente!"')
 
         elif re.match(r"2",number):
-            if (balance - 0.25 >= 0):
-                balance -= 0.25
+            if (balance - 25 >= 0):
+                balance -= 25
             else:
                 print('maq: "Saldo insuficiente!"')
 
         elif re.match(r"800",number):
+            print(f'maq: Saldo = {value_to_str(balance)}')
             return balance
 
         elif re.match(r"808",number):
-            if (balance - 0.1 >= 0):
-                balance -= 0.1
+            if (balance - 10 >= 0):
+                balance -= 10
             else:
                 print('maq: "Saldo insuficiente!"')
     
         else:
             print('maq: "Número inválido!"')
 
-        print(f'maq: Saldo = {value_to_str(balance)}')
+    print(f'maq: Saldo = {value_to_str(balance)}')
 
     return balance
 
